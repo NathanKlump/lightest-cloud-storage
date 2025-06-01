@@ -1,2 +1,5 @@
 server.exe
 server
+*pycache*
+*.db
+*env

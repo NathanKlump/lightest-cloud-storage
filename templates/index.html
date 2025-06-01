@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord-like Chat</title>
+    <script>
+        function channelClicked(channelId) {
+            fetch('/channel_clicked', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: channelId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        #channels {
+            width: 200px;
+            background-color: #2f3136;
+            color: white;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        #chat {
+            flex-grow: 1;
+            background-color: #36393f;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        #messages {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .sender {
+            font-weight: bold;
+        }
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #40444b;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #7289da;
+            color: white;
+        }
+    </style>
+    <style>
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #36393f;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        li:hover {
+            background-color: #5c5c5c;  /* Change background on hover */
+        }
+
+        li:active {
+            transform: scale(0.95);  /* Slightly shrink on click */
+            background-color: #c55c5c;  /* Darker background on click */
+        }
+    </style>
+</head>
+<body>
+    <div id="channels">
+        <h3>Channels</h3>
+        <ul>
+            {% for channel in channels %}
+            <li id="{{ channel.id }}" 
+                onclick="channelClicked({{ channel.id }})"> 
+                    {{channel.name}} 
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="chat">
+        <div id="messages">
+            <div class="message"><span class="sender">Alice:</span> Hey there!</div>
+            <div class="message"><span class="sender">Bob:</span> Hello! How's it going?</div>
+            <div class="message"><span class="sender">Alice:</span> Good, thanks! You?</div>
+        </div>
+        <div class="input-area">
+            <input type="text" placeholder="Type a message..." />
+            <button>Send</button>
+        </div>
+    </div>
+</body>
+</html>
