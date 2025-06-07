@@ -21,6 +21,43 @@
                 console.error('Error:', error);
             });
         }
+        function createChannel() {
+            const channelName = document.getElementById('channelInput').value;
+            if (!channelName) return; // Prevent sending if input is empty
+
+            fetch('/create_channel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: channelName }) // Send the channel name
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Channel created:', data);
+                location.reload();  // Reload to see the new channel
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+        function deleteChannel(channelId) {
+            fetch('/delete_channel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: channelId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Channel Deleted:', data);
+                location.reload();  // Reload to see the removed channel
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
     </script>
     <style>
         body {
@@ -91,6 +128,8 @@
             background-color: #36393f;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
+            border-radius: 0;
+            flex-grow: 1
         }
 
         li:hover {
@@ -101,6 +140,32 @@
             transform: scale(0.95);  /* Slightly shrink on click */
             background-color: #c55c5c;  /* Darker background on click */
         }
+        
+        #channelInput {
+            margin-bottom: 10px;
+            padding: 5px;
+            width: 200px;
+        }
+
+        #createChannelButton {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #channel_div {
+            display: flex;
+            width: 100%;
+        }
+
+        .deleteButton {
+            background-color: #36393f;
+            color: rgb(170, 32, 32);
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 0;
+        }
     </style>
 </head>
 <body>
@@ -108,12 +173,17 @@
         <h3>Channels</h3>
         <ul>
             {% for channel in channels %}
-            <li id="{{ channel.id }}" 
-                onclick="channelClicked({{ channel.id }})"> 
-                    {{channel.name}} 
-            </li>
+            <div id="channel_div">
+                <li id="{{ channel.id }}" 
+                    onclick="channelClicked({{ channel.id }})"> 
+                        {{channel.name}} 
+                </li>
+                <button class="deleteButton" onclick="deleteChannel({{ channel.id }}); event.stopPropagation();">X</button>
+            </div>
             {% endfor %}
         </ul>
+        <input type="text" id="channelInput" placeholder="Enter channel name">
+        <input type="button" id="createChannelButton" value="Create Channel" onclick="createChannel()">
     </div>
     <div id="chat">
         <div id="messages">

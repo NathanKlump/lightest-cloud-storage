@@ -20,10 +20,22 @@ def home():
 @app.route('/channel_clicked', methods=['POST'])
 def channel_clicked():
     channel_id = request.get_json().get('id')
-
     print(f"Channel {channel_id} clicked.")
-
     return jsonify({'status': 'success', 'id': channel_id})
 
+@app.route('/create_channel', methods=['POST'])
+def channel_created():
+    channel_name = request.get_json().get('name')
+    database.create_new_channel(channel_name)
+    return jsonify({'status': 'success', 'name': channel_name})
+
+@app.route('/delete_channel', methods=['POST'])
+def channel_deleted():
+    channel_id = request.get_json().get('id')
+    print("trying to delete")
+    database.delete_channel(channel_id)
+    return jsonify({'status': 'success', 'name': channel_id})
+    
 if __name__ == '__main__':
     app.run(debug=True)
+
