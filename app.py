@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -6,27 +6,44 @@ from sqlalchemy.orm import sessionmaker
 
 from database import Database
 
+from dotenv import load_dotenv
+import os
+
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
 database = Database()
 current_channel = 0
 
 @app.route('/')
 def home():
-    # database.create_new_channel("test channel")
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+    
     channels = database.get_channels()
     channel_names = [channel.name for channel in channels]
     
-    if get_current_channel() is 0 and len(channels) is not 0:
+    if get_current_channel() == 0 and len(channels) > 0:
         set_current_channel(channels[0].id)
     
     messages = database.get_messages(current_channel)
 
     return render_template('index.html', channels=channels, messages=messages)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        password = request.form['password']
+        if password == os.getenv('PASSWORD'):
+            session['logged_in'] = True
+            return redirect(url_for('home'))
+        else:
+            return "Incorrect password", 403
+
+    return render_template('login.html')
+
 @app.route('/channel_clicked', methods=['POST'])
 def channel_clicked():
     channel_id = request.get_json().get('id')
-    print(f"Channel clicked")
     set_current_channel(channel_id)
     return jsonify({'status': 'success', 'id': channel_id})
 
@@ -39,14 +56,12 @@ def channel_created():
 @app.route('/delete_channel', methods=['POST'])
 def channel_deleted():
     channel_id = request.get_json().get('id')
-    print("trying to delete")
     database.delete_channel(channel_id)
     return jsonify({'status': 'success', 'name': channel_id})
 
 @app.route('/create_message', methods=['POST'])
 def create_message():
     message = request.get_json().get('message')
-    print(f"recieved message {message}")
     database.create_message(get_current_channel(), message)
     return jsonify({'status': 'success', 'message': message})
 
@@ -56,9 +71,7 @@ def get_current_channel():
 
 def set_current_channel(channel_id):
     global current_channel
-    print(f"Updating current_channel; prev: {current_channel}, next: {channel_id}")
     current_channel = channel_id
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
