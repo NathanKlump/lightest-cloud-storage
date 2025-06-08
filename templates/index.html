@@ -16,6 +16,9 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
+                if (data.status === 'success') {
+                    location.reload();
+                }
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -53,6 +56,26 @@
             .then(data => {
                 console.log('Channel Deleted:', data);
                 location.reload();  // Reload to see the removed channel
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+        function createMessage() {
+            const message = document.getElementById('messageInput').value;
+            if (!message) return; // Prevent sending if input is empty
+
+            fetch('/create_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Message created:', data);
+                location.reload(); 
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -187,13 +210,13 @@
     </div>
     <div id="chat">
         <div id="messages">
-            <div class="message"><span class="sender">Alice:</span> Hey there!</div>
-            <div class="message"><span class="sender">Bob:</span> Hello! How's it going?</div>
-            <div class="message"><span class="sender">Alice:</span> Good, thanks! You?</div>
+            {% for message in messages %}
+                <div class="message">{{message.content}}</div>
+            {% endfor %}
         </div>
         <div class="input-area">
-            <input type="text" placeholder="Type a message..." />
-            <button>Send</button>
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <button onclick="createMessage()">Send</button>
         </div>
     </div>
 </body>
