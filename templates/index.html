@@ -211,7 +211,7 @@
     <div id="chat">
         <div id="messages">
             {% for message in messages %}
-                <div class="message">{{message.content}}</div>
+                <div class="message">{{ message.content | linkify | safe }}</div>
             {% endfor %}
         </div>
         <div class="input-area">

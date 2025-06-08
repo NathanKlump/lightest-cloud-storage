@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from database import Database
 
 from dotenv import load_dotenv
-import os
+import os, re
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -64,6 +64,12 @@ def create_message():
     message = request.get_json().get('message')
     database.create_message(get_current_channel(), message)
     return jsonify({'status': 'success', 'message': message})
+
+@app.template_filter()
+def linkify(text):
+    # Regex to find URLs
+    url_pattern = r'(https?://[^\s]+)'
+    return re.sub(url_pattern, r'<a href="\1" target="_blank" rel="noopener noreferrer" style="color: #007BFF;">\1</a>', text)
 
 def get_current_channel():
     global current_channel
