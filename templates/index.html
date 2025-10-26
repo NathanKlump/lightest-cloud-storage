@@ -17,6 +17,7 @@
             .then(data => {
                 console.log('Success:', data);
                 if (data.status === 'success') {
+                    closeMobileMenu();
                     location.reload();
                 }
             })
@@ -81,6 +82,36 @@
                 console.error('Error:', error);
             });
         }
+        
+        function toggleMobileMenu() {
+            const channels = document.getElementById('channels');
+            channels.classList.toggle('show');
+        }
+        
+        // Close mobile menu when clicking on a channel
+        function closeMobileMenu() {
+            const channels = document.getElementById('channels');
+            if (channels.classList.contains('show')) {
+                // Add a small delay to allow the click event to process
+                setTimeout(() => {
+                    channels.classList.remove('show');
+                }, 100);
+            }
+        }
+        
+        // Close mobile menu when clicking outside of it
+        document.addEventListener('click', function(event) {
+            const channels = document.getElementById('channels');
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            
+            // If menu is open and click is outside the menu and not on the toggle button
+            if (channels.classList.contains('show') && 
+                !channels.contains(event.target) && 
+                !mobileToggle.contains(event.target) &&
+                event.target !== mobileToggle) {
+                channels.classList.remove('show');
+            }
+        });
     </script>
     <style>
         body {
@@ -95,6 +126,7 @@
             color: white;
             padding: 10px;
             overflow-y: auto;
+            transition: transform 0.3s ease;
         }
         #chat {
             flex-grow: 1;
@@ -112,6 +144,7 @@
             margin: 5px 0;
             padding: 8px;
             border-radius: 5px;
+            word-wrap: break-word;
         }
         .sender {
             font-weight: bold;
@@ -127,6 +160,7 @@
             border: none;
             border-radius: 5px;
             margin-right: 10px;
+            font-size: 16px; /* Prevents zoom on iOS */
         }
         input[type="text"]:focus {
             outline: none;
@@ -137,6 +171,93 @@
             border-radius: 5px;
             background-color: #7289da;
             color: white;
+            cursor: pointer;
+            min-height: 44px; /* Better touch target */
+        }
+        
+        /* Mobile menu toggle button */
+        #mobile-menu-toggle {
+            display: none;
+        }
+        
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            #mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 1001;
+                background-color: #7289da;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 18px;
+            }
+            
+            #channels {
+                width: 100%;
+                max-width: 280px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+            
+            #channels.show {
+                transform: translateX(0);
+            }
+            
+            #chat {
+                width: 100%;
+            }
+            
+            #messages {
+                padding: 10px 5px;
+            }
+            
+            .message {
+                font-size: 14px;
+                padding: 10px;
+            }
+            
+            .input-area {
+                padding: 8px;
+                flex-wrap: wrap;
+            }
+            
+            input[type="text"] {
+                margin-right: 5px;
+                margin-bottom: 5px;
+                min-height: 44px;
+            }
+            
+            button {
+                min-height: 44px;
+                min-width: 80px;
+            }
+        }
+        
+        /* Overlay for mobile menu */
+        @media (max-width: 768px) {
+            #channels.show::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 280px;
+                width: calc(100vw - 280px);
+                height: 100vh;
+                background-color: rgba(0, 0, 0, 0.5);
+                pointer-events: none;
+            }
         }
     </style>
     <style>
@@ -152,7 +273,8 @@
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
             border-radius: 0;
-            flex-grow: 1
+            flex-grow: 1;
+            word-wrap: break-word;
         }
 
         li:hover {
@@ -168,11 +290,13 @@
             margin-bottom: 10px;
             padding: 5px;
             width: 200px;
+            font-size: 16px; /* Prevents zoom on iOS */
         }
 
         #createChannelButton {
             padding: 5px 10px;
             cursor: pointer;
+            min-height: 44px;
         }
 
         #channel_div {
@@ -188,10 +312,38 @@
             padding: 10px;
             margin: 5px 0;
             border-radius: 0;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        /* Mobile-specific channel styling */
+        @media (max-width: 768px) {
+            li {
+                padding: 15px;
+                margin: 8px 0;
+                font-size: 16px;
+            }
+            
+            #channelInput {
+                width: 100%;
+                padding: 10px;
+                min-height: 44px;
+            }
+            
+            #createChannelButton {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            #channels h3 {
+                padding-top: 50px; /* Space for mobile menu button */
+            }
         }
     </style>
 </head>
 <body>
+    <button id="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
     <div id="channels">
         <h3>Channels</h3>
         <ul>
