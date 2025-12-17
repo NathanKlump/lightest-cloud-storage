@@ -80,4 +80,4 @@ def set_current_channel(channel_id):
     current_channel = channel_id
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=6767, debug=True)
